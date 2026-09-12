@@ -1,78 +1,70 @@
-interface Server{
-  void start();
+interface Button{
+  void push();
 }
-interface Storage{
-  void save();
+interface CheckBox{
+  void click();
 }
-class AwsServer implements Server{
-  public void start(){
-    System.out.println("Aws Server started");
+class WindowsButton implements Button{
+  public void push(){
+    System.out.println("Windows Button pushed");
+  }
+}
+class WindowsCheckBox implements CheckBox{
+  public void click(){
+    System.out.println("Windows CheckBox clicked");
+  }
+}
+class MacButton implements Button{
+  public void push(){
+    System.out.println("Mac Button pushed");
+  }
+}
+class MacCheckBox implements CheckBox{
+  public void click(){
+    System.out.println("Mac Button clicked");
   }
 }
 
-class AwsStorage implements Storage{
-  public void save(){
-    System.out.println("saved to AWS");
+interface GUIFactory{
+  Button createButton();
+  CheckBox createCheckBox();
+}
+class MacFactory implements GUIFactory{
+  public Button createButton(){
+    return new MacButton();
+  }
+  public CheckBox createCheckBox(){
+    return new MacCheckBox();
   }
 }
-
-class GcpServer implements Server{
-  public void start(){
-    System.out.println("Gcp Server started");
+class WindowsFactory implements GUIFactory{
+  public Button createButton(){
+    return new WindowsButton();
+  }
+  public CheckBox createCheckBox(){
+    return new WindowsCheckBox();
   }
 }
-
-class GcpStorage implements Storage{
-  public void save(){
-    System.out.println("Saved to Gcp");
+class Application{
+  private Button button;
+  private CheckBox checkbox;
+  
+  public Application(GUIFactory factory){
+    button=factory.createButton();
+    checkbox=factory.createCheckBox();
+  }
+  public void renderUI(){
+    button.push();
+    checkbox.click();
   }
 }
+public class Main{
+  public static void main(String[]args){
+    GUIFactory factory= new MacFactory();
+    Button button=factory.createButton();
+    CheckBox checkbox=factory.createCheckBox();
+    button.push();
+    checkbox.click();
 
-interface CloudFactory{
-  Server createServer();
-  Storage createStorage();
-}
-class AwsFactory implements CloudFactory{
-  public Server createServer(){
-    return new AwsServer();
   }
-  public Storage createStorage(){
-    return new AwsStorage();
-  }
-}
-
-class GcpFactory implements CloudFactory{
-  public Server createServer(){
-    return new GcpServer();
-  }
-  public Storage createStorage(){
-    return new GcpStorage();  
-  }
-}
-
-class CloudDeployer{
-  private Server server;
-  private Storage storage;
-  public CloudDeployer(CloudFactory factory){
-    server=factory.createServer();
-    storage=factory.createStorage();
-  }
-  public void deploySystem(){
-    server.start();
-    storage.save();
-    System.out.println("cloud deployed, server started and storage saved");
-  }
-}
-
-public class Main {
-    public static void main(String[] args) {
-      CloudFactory awsFactory=new AwsFactory();
-      CloudFactory GcpFactory=new GcpFactory();
-      
-      CloudDeployer awsDeployer=new CloudDeployer(awsFactory);
-      CloudDeployer gcpDeployer=new CloudDeployer(GcpFactory);
-
-      awsDeployer.deploySystem();
-      gcpDeployer.deploySystem();
-    }
 }
